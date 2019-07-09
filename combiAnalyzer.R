@@ -356,7 +356,7 @@ counter=0
 while(stop==FALSE){
   
   #used to inform user what iteration is currently running
-  cat(paste(counter,"iteration(s) have been run", sep=" "))
+  cat(paste(counter,"iteration(s) have been run \n", sep=" "))
   
   #saves each iteration to "interim"
   interim<-combiAnalyzer(loci, myData, BOLO ,KDLO, UMLO, counter, motif_list)
