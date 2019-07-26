@@ -375,11 +375,8 @@ variantAAextractor<-function(loci,genotypefiles){
       #returns truncated alleles that are not CWD, but that are present in geno_alleles
       nonCWDtrunc[[loci[i]]]<-cbind(geno_alleles[[loci[i]]]%in%all_gdata[[loci[i]]][[d]]$trimmed_allele, geno_alleles[[loci[i]]])[which(cbind(geno_alleles[[loci[i]]], geno_alleles[[loci[i]]]%in%all_gdata[[loci[i]]][[d]]$trimmed_allele)==FALSE)]
       
-<<<<<<< HEAD
       if (length(nonCWDtrunc[[loci[i]]]) != 0) { 
         
-=======
->>>>>>> 80c0fd94c8d0b1e459d064a4b0ab58d9e3ca8ccd
       #obtains non-CWD genotype variants in the genotype dataset
       for(b in 1:length(nonCWDtrunc[[loci[i]]])){
         genotype_variants[[loci[i]]][[d]][[b]]<-subset(geno_exonlist[[loci[i]]][[d]], geno_exonlist[[loci[i]]][[d]]$trimmed_allele==nonCWDtrunc[[loci[i]]][[b]])
@@ -421,10 +418,7 @@ variantAAextractor<-function(loci,genotypefiles){
       if(length(columns[[loci[i]]][[d]])==1){
         all_gdata[[loci[i]]][[d]]<-rbind(all_gdata[[loci[i]]][[d]][ncol(all_gdata[[loci[i]]][[d]])==7], rbind(nonCWD_checked[[loci[i]]][[1]], nonCWD_checked[[loci[i]]][[2]]))}}
     
-<<<<<<< HEAD
     }
-=======
->>>>>>> 80c0fd94c8d0b1e459d064a4b0ab58d9e3ca8ccd
     
     #creates a new variable, position_parsed, with pre-defined elements based on
     #column names in AA_segments (i.e. position in the peptide sequence)
@@ -598,7 +592,6 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
     combinames<-unique(mixedsort(combinames))}
   
   ###subsets combinames by successive unassociated positions
-<<<<<<< HEAD
   if(counter==1) {
     for(i in 1:length(unassociated_posi)) {
       combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
@@ -606,21 +599,11 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
   
   if(counter==2) {
     for(i in 1:length(unassociated_posi)) {
-=======
-  if(counter==1){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-  }
-  
-  if(counter==2){
-    for(i in 1:length(unassociated_posi)){
->>>>>>> 80c0fd94c8d0b1e459d064a4b0ab58d9e3ca8ccd
       combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
     for(i in 1:length(UMLO_list[[counter]])){
       combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
   }
   
-<<<<<<< HEAD
   if (counter > 2) {
     for(i in 1:length(unassociated_posi)) {
       combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
@@ -630,151 +613,6 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
     }
   }
   if(length(combinames)==0) {
-=======
-  #ends function of no more combination names can be made due to lack of improvement 
-  if(length(combinames)==0){
-    return(list(KDLO, BOLO, UMLO))
-  }
-  
-  #triplets
-  if(counter==3){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-  }
-  if(length(combinames)==0){
-    return(list(KDLO, BOLO, UMLO))
-  }
-  
-  #quadruplets
-  if(counter==4){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-2]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-2]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-2]][[i]], sep=""), combinames)))}
-  }
-  
-  #ends function of combinames is 0
-  if(length(combinames)==0){
-    return(list(KDLO, BOLO, UMLO))
-  }
-  
-  #quintets
-  if(counter==5){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))} #Vinh's code
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-2]])){
-      combinames<-subset(combinames, !grepl(paste("^", UMLO_list[[counter-2]][[i]], sep=""), combinames) & (!grepl(paste(":", UMLO_list[[counter-2]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-3]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-3]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-3]][[i]], sep=""), combinames)))}
-  }
-  
-  #ends function if combinames is 0
-  if(length(combinames)==0){
-    return(list(KDLO, BOLO, UMLO))
-  }
-  
-  #sextets
-  if(counter==6){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-2]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-2]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-2]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-3]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-3]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-3]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-4]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-4]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-4]][[i]], sep=""), combinames)))}
-  }
-  
-  #ends function if combinames is 0
-  if(length(combinames)==0){
-    return(list(KDLO, BOLO, UMLO))
-  }
-  
-  #septets
-  if(counter==7){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-2]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-2]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-2]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-3]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-3]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-3]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-4]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-4]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-4]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-5]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-5]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-5]][[i]], sep=""), combinames)))}
-  }
-  
-  if(length(combinames)==0){
-    return(list(KDLO, BOLO, UMLO))
-  }
-  
-  #octets
-  if(counter==8){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-2]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-2]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-2]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-3]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-3]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-3]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-4]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-4]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-4]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-5]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-5]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-5]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-6]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-6]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-6]][[i]], sep=""), combinames)))}
-  }
-  
-  #nonetes
-  if(counter==9){
-    for(i in 1:length(unassociated_posi)){
-      combinames<-subset(combinames, (!grepl(paste("^", unassociated_posi[[i]], sep=""), combinames)) & (!grepl(paste(":", unassociated_posi[[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-1]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-1]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-1]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-2]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-2]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-2]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-3]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-3]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-3]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-4]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-4]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-4]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-5]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-5]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-5]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-6]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-6]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-6]][[i]], sep=""), combinames)))}
-    for(i in 1:length(UMLO_list[[counter-7]])){
-      combinames<-subset(combinames, (!grepl(paste("^", UMLO_list[[counter-7]][[i]], sep=""), combinames)) & (!grepl(paste(":", UMLO_list[[counter-7]][[i]], sep=""), combinames)))}
-  }
-  
-  
-  #if there are no more combination names after subsetting them based on UMLO_list
-  #return function and end
-  if(length(combinames)==0){
->>>>>>> 80c0fd94c8d0b1e459d064a4b0ab58d9e3ca8ccd
     return(list(KDLO, BOLO, UMLO))
   }
   
@@ -872,13 +710,6 @@ runCombiAnalyzer <- function(loci, variantAAtable) {
 }
 
 #Combining everything into one function
-<<<<<<< HEAD
 Genotype_Data <- read.table(file.choose(), header = TRUE, sep = "\t", quote = "", na.strings = "****", colClasses = "character", check.names = FALSE)
 AAData <- variantAAextractor("DRB1", Genotype_Data)
-CombiData <- runCombiAnalyzer("DRB1", AAData[[1]])
-=======
-#Genotype_Data <- read.table(file.choose(), header = TRUE, sep = "\t", quote = "", na.strings = "****", colClasses = "character", check.names = FALSE)
-#AAData <- variantAAextractor(c("DRB1"), Genotype_Data)
-#CombiData <- runCombiAnalyzer(c("DRB1","DRB3"), AAData)
-
->>>>>>> 80c0fd94c8d0b1e459d064a4b0ab58d9e3ca8ccd
+CombiData <- runCombiAnalyzer("DRB1", AAData)
