@@ -472,11 +472,11 @@ variantAAextractor<-function(loci,genotypefiles){
         mastertable[[loci[[i]]]][names(variantAApositions[[loci[[i]]]][[s]][2]) == names(mastertable[[loci[[i]]]])][[u]]<-variantAApositions[[loci[[i]]]][[s]][,2][match(gdata[loci[[i]]==colnames(gdata)][[u]], variantAApositions[[loci[[i]]]][[s]][,1])]
       }}
   }
-
-  for (x in 3:ncol(mastertable[[loci[[i]]]])) {
-    for (y in 1:(ncol(corr_table[[loci[[i]]]]))) {
-      if (corr_table[[loci[[i]]]][[1,y]] == colnames(mastertable[[loci[[i]]]][x])) {
-        colnames(mastertable[[loci[[i]]]])[x] <- corr_table[[loci[[i]]]][[2,y]]
+    #Fixes the alignment - output will be in true alignment instead of positional order.
+    for (x in 3:ncol(mastertable[[loci[[i]]]])) {
+      for (y in 1:(ncol(corr_table[[loci[[i]]]]))) {
+        if (corr_table[[loci[[i]]]][[1,y]] == colnames(mastertable[[loci[[i]]]][x])) {
+          colnames(mastertable[[loci[[i]]]])[x] <- corr_table[[loci[[i]]]][[2,y]]
         
       }
     }
@@ -729,7 +729,7 @@ BIGCAAT <- function(loci, GenotypeFile) {
     Genotype_Data <- read.table(GenotypeFile, header = TRUE, sep = "\t", quote = "", na.strings = "****", colClasses = "character", check.names = FALSE)
   }
   
-  AAData <- variantAAextractor(c("A","DRB1"), Genotype_Data)
+  AAData <- variantAAextractor("DRB1", Genotype_Data)
   CombiData <- list()
   
   for (p in 1:length(loci)) {
