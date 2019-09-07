@@ -1,4 +1,8 @@
-##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundency.
+### BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing
+### Version 0.2 September 6, 2019
+### Authors: Liva Tran, Vinh Luu, Steven J. Mack
+
+##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundancy.
 
 #Requirements
 require(data.table)
