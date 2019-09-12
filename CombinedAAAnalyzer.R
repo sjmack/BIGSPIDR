@@ -1,4 +1,8 @@
-##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundency.
+### BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing
+### Version 0.2 September 6, 2019
+### Authors: Liva Tran, Vinh Luu, Steven J. Mack
+
+##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundancy.
 
 #Requirements
 require(data.table)
@@ -17,7 +21,7 @@ Datafile_Processing <- function(locus, Genotype_Data) {
   for (x in seq(3,length(Genotype_Data),2)) {
     if (colnames(Genotype_Data[x]) %in% locus) {
       Allele_Columns <- Genotype_Data[,x:(x+1)] ## not a list of lists
-      print(paste("Column pairs:", x,(x+1), sep = " "))
+    #  print(paste("Column pairs:", x,(x+1), sep = " ")) ### SJM silencing unnessary messaging 
       colnames(Allele_Columns) <- colnames(Genotype_Data)[x:(x+1)]
       Final_Data <- cbind(Final_Data, Dataset_Allele_Check_V2(Allele_Columns))
     }
@@ -43,14 +47,14 @@ Dataset_Allele_Check_V2 <- function(Alleles) {
   
   #Calculates percentage of the data that is 1 field, outputs an integer value denoting how many 1 field alleles were in the data and outputs a percentage.
   percentage <- (count / (nrow(Alleles) * 2))
-  print(paste("The number of single field Alleles is:", count, sep = " "))
-  print(paste("The percentage of single field Alleles in this column pair is:", percentage, sep = " "))  
+ # print(paste("The number of single field Alleles is:", count, sep = " "))  ### SJM silencing unnecessary messages
+ # print(paste("The percentage of single field Alleles in this column pair is:", percentage, sep = " ")) ### SJM as above 
   
   #Checks if the percentage of single field alleles is below a certain threshold. This is currently not changable by the user but can be implemented.
   if (percentage > .05) {
     stop("This column pair has too many alleles that are single field.")
   } else {
-    print("This column pair is good to go!")
+  # print("This column pair is good to go!") ### SJM silencing unnecessary messages
   }
   Final_Alleles
 }
@@ -77,30 +81,30 @@ CWDverify <- function(){
   
   ## Pull down the CWD catalogue
   CWD <- list()
-  CWD$data <- fread("https://www.uvm.edu/~igdawg/pubs/cwd200_alleles.txt",skip = 1,stringsAsFactors = FALSE,select = c(2,3))
-  CWD$version <- fread("https://www.uvm.edu/~igdawg/pubs/cwd200_alleles.txt",nrows = 1,stringsAsFactors = FALSE,select=1)
+  CWD$data <- fread("https://www.uvm.edu/~igdawg/pubs/cwd200_alleles.txt",skip = 1,stringsAsFactors = FALSE,select = c(2,3),showProgress = FALSE)
+  CWD$version <- fread("https://www.uvm.edu/~igdawg/pubs/cwd200_alleles.txt",nrows = 1,stringsAsFactors = FALSE,select=1,showProgress = FALSE)
   
   ## Pull down the hla_nom.txt, Deleted_alleles.txt and allelelist.txt files to create a table of v3.0.0+ deleted alleles, their ACCs,their replacements, and their ACCs
   deletedHLA <- list()
   # Temporarily store the entire hla_nom.txt in $version
-  deletedHLA$version <- fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/hla_nom.txt",skip=6, stringsAsFactors = FALSE,sep = ";", col.names = c("Locus","AlleleName","NewName","Event"),select = c(1,2,5,6))
+  deletedHLA$version <- fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/hla_nom.txt",skip=6, stringsAsFactors = FALSE,sep = ";", col.names = c("Locus","AlleleName","NewName","Event"),select = c(1,2,5,6),showProgress = FALSE)
   ## Exclude entries without allele name changes
   deletedHLA$data <- deletedHLA$version[deletedHLA$version$NewName !="",]
   # Exclude pre-db release 3.0.0 alleles
   deletedHLA$data <- deletedHLA$data[grep(":",deletedHLA$data$AlleleName,fixed=TRUE),]
   
   ## Process and extract the accession numbers from the Deleted_alleles.txt file, temporarily stored in $version
-  deletedHLA$version <- fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Deleted_alleles.txt",stringsAsFactors = FALSE,skip = 7,sep=",",header=TRUE,fill=TRUE)
+  deletedHLA$version <- fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Deleted_alleles.txt",stringsAsFactors = FALSE,skip = 7,sep=",",header=TRUE,fill=TRUE,showProgress = FALSE)
   ## Below to account for one extra comma in line 106 (hopefully, can be deleted in a future release)
   if(ncol(deletedHLA$version)==4) {deletedHLA$version$Description[98] <- paste(deletedHLA$version$Description[98],deletedHLA$version$V4[98],sep=" ")
   deletedHLA$version <- deletedHLA$version[,1:3] }
   # Store the pertinent accession numbers in the data element
   deletedHLA$data$origAccession <- deletedHLA$version$AlleleID[match(paste(deletedHLA$data$Locus,deletedHLA$data$AlleleName,sep=""),deletedHLA$version$Allele)]
   # Temporarily store the allelelist.txt file in $version 
-  deletedHLA$version <- fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt",skip=6, stringsAsFactors = FALSE,sep = ",", header=TRUE)
+  deletedHLA$version <- fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt",skip=6, stringsAsFactors = FALSE,sep = ",", header=TRUE,showProgress = FALSE)
   deletedHLA$data$newAccession <- deletedHLA$version$AlleleID[match(paste(deletedHLA$data$Locus,deletedHLA$data$NewName,sep=""),deletedHLA$version$Allele)]
   # overwrite the Deleted_alelles.txt files with the version information
-  deletedHLA$version <- cbind(fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/hla_nom.txt",stringsAsFactors = FALSE,nrows = 5,sep="?",header=TRUE),fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Deleted_alleles.txt",stringsAsFactors = FALSE,nrows = 5,sep="?",header=TRUE), fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt",nrows=5, stringsAsFactors = FALSE,sep = "?", header=TRUE))
+  deletedHLA$version <- cbind(fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/wmda/hla_nom.txt",stringsAsFactors = FALSE,nrows = 5,sep="?",header=TRUE,showProgress = FALSE),fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Deleted_alleles.txt",stringsAsFactors = FALSE,nrows = 5,sep="?",header=TRUE,showProgress = FALSE), fread("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt",nrows=5, stringsAsFactors = FALSE,sep = "?", header=TRUE,showProgress = FALSE))
   
   ## Match accession numbers in CWD to the Accession numbers in the deleted alleles. 
   changeCWD <- match(CWD$data$`IMGT/HLA Accession Number`,deletedHLA$data$origAccession)
@@ -234,7 +238,7 @@ variantAAextractor<-function(loci,genotypefiles){
     AA_segments[[loci[i]]]<-cbind(AA_segments[[loci[i]]][,1], apply(AA_segments[[loci[i]]][,cols], 1 ,paste, collapse = ""))
     
     #creates a new matrix with the number of columns equal to the number of characters in the reference sequence 
-    corr_table[[loci[i]]]<-matrix(, nrow = 2, ncol = as.numeric(nchar(AA_segments[[loci[i]]][,2][1])))
+    corr_table[[loci[i]]]<-matrix(NA, nrow = 2, ncol = as.numeric(nchar(AA_segments[[loci[i]]][,2][1]))) ### SJM added NA argument
     
     #determines alignment length based on the total number of characters plus the alignment start (which is negative ) 
     alignment_length[[loci[i]]]<-as.numeric(nchar(AA_segments[[loci[i]]][,2][1]))+alignment_start[[loci[[i]]]]
@@ -491,13 +495,13 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
   #specifies a default motif list if one is not provided 
   if((is.null(motif_list)==TRUE)&(counter==0)){
     motif_list<-c(0,2,3,4,5,6,7)
-    print(paste("Motif list has not been provided - function will run until maximal OR is reached"))
+  #  cat("BIGCAAT: A motif list has not been provided - BIGCAAT will run until maximal OR is reached. \n") ### SJM Currently no way to provide a motif list
   }
-  #cat(paste("internal motif_list = ",motif_list,"\n",sep=""))
+  #cat("internal motif_list = ",motif_list,"\n",sep="")
   
   #BIGDAWG analysis for iteration 0 
   #set output as T for statistical outputs 
-  BOLO<-BIGDAWG(myData, HLA=F, Run.Tests="L", Missing = 2, Return=T, Output = F, Verbose = T)
+  silenceBD <- capture.output(BOLO<-BIGDAWG(myData, HLA=F, Run.Tests="L", Missing = 2, Return=T, Output = F, Verbose = F)) ### SJM Verbose OFF, and BIGDAWG output captured to silenceBD
   
   #unlists all lists in columns in the dataframe 
   BOLO<-data.frame(lapply(as.data.frame(BOLO$L$Set1$OR), function(x) unlist(x)), stringsAsFactors = F)
@@ -681,8 +685,8 @@ runCombiAnalyzer <- function(loci, variantAAtable) {
   while(stop==FALSE){
   
     #used to inform user what iteration is currently running
-    cat(paste(counter,"iteration(s) have been run \n", sep=" "))
-  
+    # cat("BIGCAAT:", counter,ifelse(counter==1,"iteration has","iterations have"),"been run \n", sep=" ") #### SJM cleaning up messaging
+    cat("Evaluating",ifelse(counter==0,"initial comparison to null hypothesis \n",paste(counter,"-mers \n",sep=""))) ### SJM more accurate messaging
     #saves each iteration to "interim"
     interim<-combiAnalyzer(loci, myData, BOLO ,KDLO, UMLO, counter, motif_list, KDLO_list, UMLO_list, variantAAtable)
   
@@ -695,46 +699,59 @@ runCombiAnalyzer <- function(loci, variantAAtable) {
     BOLO<-BOLO_list[[counter]]<-interim$BOLO
     UMLO<-UMLO_list[[counter]]<-interim$UMLO
   
-    #cat(paste("external motif_list = ",motif_list,"\n",sep=""))
+    #cat("external motif_list = ",motif_list,"\n",sep="")
   
     if(is.null(nrow(KDLO))==TRUE){
-      cat("BIGCAAT -- Maximal OR reached - end of analysis.\n")
+      cat("Maximal significant OR values identified. End of analysis of the",loci,"locus.\n\n") ### SJM cosmetic & informative changes
       Results <- (list(KDLO = KDLO_list, BOLO = BOLO_list, UMLO = UMLO_list))
       return (Results)
     }
   
     if((is.null(nrow(KDLO))==FALSE) & (length(motif_list)!=counter)){
-     cat("BIGCAAT -- Dataset is able to be further analyzed - moving on to next iteration.")
+ ##    cat("BIGCAAT: Dataset is able to be further analyzed - moving on to next iteration.\n") ### SJM added break, and removed message
     }
   
     if((is.null(nrow(KDLO))==FALSE) & length(motif_list)==counter){
-      cat("BIGCAAT -- WARNING: end of motif_list analysis, but further analysis is possible.")
+      cat("BIGCAAT: WARNING: end of motif_list analysis, but further analysis is possible.\n") ### SJM added break
       stop=TRUE
       
     }
   
     if((is.null(nrow(KDLO))==TRUE) & length(motif_list)==counter){
-      cat("BIGCAAT -- End of motif_list analysis - maximal OR has been reached.")
+      cat("BIGCAAT: End of motif_list analysis - maximal OR has been reached.\n") ### SJM added break
       }
   }
 }
 
 #Combining everything into one function
 BIGCAAT <- function(loci, GenotypeFile) {
+
+  if (missing(loci)) { return(cat("Please specify a locus, or vector of loci to analyze.")) }
   
-  if (missing(GenotypeFile)) {
-    Genotype_Data <- read.table(file.choose(), header = TRUE, sep = "\t", quote = "", na.strings = "****", colClasses = "character", check.names = FALSE)
-  }
-  else {
+  if (missing(GenotypeFile)) { 
+     #Genotype_Data <- read.table(file.choose(), header = TRUE, sep = "\t", quote = "", na.strings = "****", colClasses = "character", check.names = FALSE)
+    GenotypeFile <- fileChoose("Please select a BIGDAWG-formatted genotype datset for analysis.")
+  }  
+      cat("-------------------------------------------------------------------\n BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing\n-------------------------------------------------------------------\n") ### SJM Banner
+       #  else {
     Genotype_Data <- read.table(GenotypeFile, header = TRUE, sep = "\t", quote = "", na.strings = "****", colClasses = "character", check.names = FALSE)
-  }
+#  }
   
-  AAData <- variantAAextractor("DRB1", Genotype_Data)
-  CombiData <- list()
+  AAData <- variantAAextractor(loci, Genotype_Data) ## SJM "DRB1" was hard coded
+  #CombiData <- list() ### SJM incorporating locus names to CombiData
+  CombiData <- vector("list",length(loci))
+  names(CombiData) <- loci
   
   for (p in 1:length(loci)) {
+    cat("Analyzing the",loci[p],"locus\n",sep=" ") ### SJM added notification
     CombiData[[p]] <- runCombiAnalyzer(loci[p], AAData)
   }
   CombiData
+}
+ 
+fileChoose <- function(text,suspend=0.02) { ## Display a message on the Console when file.choose() is called.
+  message(text)  
+  Sys.sleep(suspend) # This is a kludgy way to get file.choose() to execute after a message is displayed.
+  file.choose()  
 }
 
