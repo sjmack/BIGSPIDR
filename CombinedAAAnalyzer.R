@@ -1,5 +1,5 @@
 ### BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing
-### Version 0.2 September 6, 2019
+### Version 0.2 September 30, 2019
 ### Authors: Liva Tran, Vinh Luu, Steven J. Mack
 
 ##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundancy.
@@ -9,6 +9,8 @@ require(data.table)
 require(stringr)
 require(BIGDAWG)
 require(gtools)
+require(dplyr) ## LT
+
 load("AA_atlas.rda")
 
 
@@ -490,7 +492,7 @@ variantAAextractor<-function(loci,genotypefiles){
 }
 
 ##Part 3 - Combination Analyzer##
-combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDLO_list, UMLO_list, variantAAtable){
+combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDLO_list, UMLO_list, variantAAtable, loop){
 
   #specifies a default motif list if one is not provided 
   if((is.null(motif_list)==TRUE)&(counter==0)){
@@ -547,6 +549,17 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
   #subsets out NS values 
   KDLO<-subset(BOLO,BOLO[,7]=="*")
   
+  ##loop specifications -- LT
+  
+  #filters out predisposing ORs for analysis
+  if(loop==1){
+    KDLO<-KDLO %>% filter(OR > 1.0)}
+  
+  #filters out protective ORs for analysis
+  if(loop==2){
+    KDLO<-KDLO %>% filter(OR <1.0)}
+  
+  
   #statement for returning BOLO if KDLO=0
   if((counter>0) & (nrow(KDLO)==0)){ 
     return(list(KDLO, BOLO, UMLO))}
@@ -578,12 +591,19 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
   #pair name generation 
   if(counter==0){
     start1<-unique(KDLO$Locus)
+    
+    #if nothing is in the KDLO, return KDLO and BOLO ## LT 
+    if((length(start1)-1)==0){
+      return(list(KDLO, BOLO))
+    }
+    
     combinames<-sapply(start1, function(x) NULL)
+    
     for(i in 1:(length(start1)-1)){ ## range.x = 1:(N-1)
       for(j in (i+1):length(combinames)){ ## range.y = x+1:N
         if(names(combinames)[[j]]!=start1[[i]]){
           combinames[[i]][[j]]<-paste(start1[[i]],names(combinames)[[j]],sep=":")}}}
-    #unlists iter0names and omits NAs to obtain all unique possible pair combinations 
+    #unlists combinames and omits NAs to obtain all unique possible pair combinations 
     combinames<-unlist(combinames, use.names = F)[!is.na(unlist(combinames, use.names = F))]
   }
   
@@ -663,7 +683,7 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
   return(myDataFinal)
 }
 
-runCombiAnalyzer <- function(loci, variantAAtable) {
+runCombiAnalyzer <- function(loci, variantAAtable, loop) {
   #makes empty lists so results of each iteration may be stored 
   BOLO_list<-KDLO_list<-UMLO_list<-list()
 
@@ -688,7 +708,7 @@ runCombiAnalyzer <- function(loci, variantAAtable) {
     # cat("BIGCAAT:", counter,ifelse(counter==1,"iteration has","iterations have"),"been run \n", sep=" ") #### SJM cleaning up messaging
     cat("Evaluating",ifelse(counter==0,"initial comparison to null hypothesis \n",paste(counter,"-mers \n",sep=""))) ### SJM more accurate messaging
     #saves each iteration to "interim"
-    interim<-combiAnalyzer(loci, myData, BOLO ,KDLO, UMLO, counter, motif_list, KDLO_list, UMLO_list, variantAAtable)
+    interim<-combiAnalyzer(loci, myData, BOLO ,KDLO, UMLO, counter, motif_list, KDLO_list, UMLO_list, variantAAtable, loop)
   
     #adds 1 to the counter with each iteration 
     counter=counter+1
@@ -742,16 +762,29 @@ BIGCAAT <- function(loci, GenotypeFile) {
   CombiData <- vector("list",length(loci))
   names(CombiData) <- loci
   
+  #specifications for predisposing and protective OR analysis added by LT
+  CombiData <- sapply(c("Predisposing", "Protective"), function(x) NULL)
+  
+  for(loop in 1:length(CombiData)){
+    if(loop==1){cat("Predisposing OR analysis", sep="\n")}
+    if(loop==2){cat("Protective OR analysis", sep="\n")}
+  
   for (p in 1:length(loci)) {
     cat("Analyzing the",loci[p],"locus\n",sep=" ") ### SJM added notification
-    CombiData[[p]] <- runCombiAnalyzer(loci[p], AAData)
+    CombiData[[p]] <- runCombiAnalyzer(loci[p], AAData, loop) #LT added loop as parameter
   }
+    }
   CombiData
 }
  
+  
+  
+  
+BIGCAAT("DPB1", "../ltmasterscoding/MS_EUR.txt")
+  
+  
+  
 fileChoose <- function(text,suspend=0.02) { ## Display a message on the Console when file.choose() is called.
   message(text)  
   Sys.sleep(suspend) # This is a kludgy way to get file.choose() to execute after a message is displayed.
-  file.choose()  
-}
-
+  file.choose()}
