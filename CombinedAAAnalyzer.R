@@ -1,5 +1,5 @@
 ### BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing
-### Version 0.2 September 30, 2019
+### Version 0.3.1
 ### Authors: Liva Tran, Vinh Luu, Steven J. Mack
 
 ##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundancy.
@@ -593,7 +593,7 @@ combiAnalyzer<-function(loci, myData, KDLO, BOLO, UMLO, counter, motif_list, KDL
     start1<-unique(KDLO$Locus)
     
     #if nothing is in the KDLO, return KDLO and BOLO ## LT 
-    if((length(start1)-1)==0){
+    if((length(start1))==0){
       return(list(KDLO, BOLO))
     }
     
@@ -771,7 +771,7 @@ BIGCAAT <- function(loci, GenotypeFile) {
   
   for (p in 1:length(loci)) {
     cat("Analyzing the",loci[p],"locus\n",sep=" ") ### SJM added notification
-    CombiData[[p]] <- runCombiAnalyzer(loci[p], AAData, loop) #LT added loop as parameter
+    CombiData[[loop]][[loci[p]]] <- runCombiAnalyzer(loci[p], AAData, loop) #LT added loop as parameter
   }
     }
   CombiData
@@ -779,11 +779,8 @@ BIGCAAT <- function(loci, GenotypeFile) {
  
   
   
-  
-BIGCAAT("DPB1", "../ltmasterscoding/MS_EUR.txt")
-  
-  
-  
+BIGCAAT("DRB1", "../ltmasterscoding/MS_EUR.txt")
+
 fileChoose <- function(text,suspend=0.02) { ## Display a message on the Console when file.choose() is called.
   message(text)  
   Sys.sleep(suspend) # This is a kludgy way to get file.choose() to execute after a message is displayed.
