@@ -1,5 +1,5 @@
 ### BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing
-### Version 0.3.1
+### Version 0.3.2
 ### Authors: Liva Tran, Vinh Luu, Steven J. Mack
 
 ##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundancy.
@@ -294,12 +294,22 @@ variantAAextractor<-function(loci,genotypefiles){
     #inputs AA_segments alignment sequence into the corr_table with "InDel" still present
     corr_table[[loci[[i]]]][1,]<-names(AA_segments[[loci[[i]]]][5:ncol(AA_segments[[loci[[i]]]])])
     
-    for(b in 1:length(inDels[[loci[[i]]]])){
-      corr_table[[loci[[i]]]][2,][inDels[[loci[[i]]]][[b]]==corr_table[[loci[[i]]]][1,]]<-paste("InDel", b, sep="_")
+    if(length(inDels[[loci[[i]]]])!=0){
+      for(b in 1:length(inDels[[loci[[i]]]])){
+        corr_table[[loci[[i]]]][2,][inDels[[loci[[i]]]][[b]]==corr_table[[loci[[i]]]][1,]]<-paste("InDel", b, sep="_")
+      }
     }
     
-    #fixes enumerations following "InDel"
-    corr_table[[loci[[i]]]][2,][!grepl("InDel", corr_table[[loci[[i]]]][2,])]<-(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))+alignment_start[[loci[[i]]]]))[!(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))+alignment_start[[loci[[i]]]]))==0]
+    #if alignment start is position 1, alignment start does not need to be accounted for
+    #when determining length of corr_table in re-enumerating corr_table with InDels
+    if(alignment_start[[loci[[i]]]]==1){
+      #fixes enumerations following "InDel"
+      corr_table[[loci[[i]]]][2,][!grepl("InDel", corr_table[[loci[[i]]]][2,])]<-(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))))[!(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))))==0]
+    }
+    
+    else{
+      corr_table[[loci[[i]]]][2,][!grepl("InDel", corr_table[[loci[[i]]]][2,])]<-(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))+alignment_start[[loci[[i]]]]))[!(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))+alignment_start[[loci[[i]]]]))==0]
+    }
     
     #renames columns in AA_segments
     colnames(AA_segments[[loci[i]]]) <- c("locus","allele","trimmed_allele","allele_name", 1:ncol(corr_table[[loci[[i]]]]))
@@ -354,8 +364,10 @@ variantAAextractor<-function(loci,genotypefiles){
     #creates a variable geno_exonlist, with the number of elements equal to how many exons there are for an allele
     geno_exonlist[[loci[i]]]<-sapply(exonlist[[loci[i]]], function(x) NULL)
     
-    #reads in 3310 HLA alleles 
-    HLA_alleles<-read.csv("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3340.txt", header=TRUE, stringsAsFactors = FALSE, skip=6,sep=",")
+    #reads in text file of of latest, full allele history -- chooses most recent allele release to set as HLA_alleles
+    #LT
+    HLA_alleles<-read.csv("https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist_history.txt", header=TRUE, stringsAsFactors = FALSE, skip=6,sep=",")[,c(1,2)]
+
     
     #compiles a list of CWD alleles and inserts them into a new variable
     CWDalleles<-CWDverify()
@@ -367,7 +379,7 @@ variantAAextractor<-function(loci,genotypefiles){
     #geno_exonlist
     for(d in 1:length(exonlist[[loci[i]]])){
       geno_exonlist[[loci[i]]][[d]]<-subset(exonlist[[loci[i]]][[d]], exonlist[[loci[i]]][[d]][,3]%in%geno_alleles[[loci[i]]])
-      geno_exonlist[[loci[i]]][[d]]<-cbind.data.frame("accessions"=HLA_alleles$AlleleID[match(geno_exonlist[[loci[i]]][[d]]$allele_name, HLA_alleles$Allele)], geno_exonlist[[loci[i]]][[d]], stringsAsFactors=FALSE)
+      geno_exonlist[[loci[i]]][[d]]<-cbind.data.frame("accessions"=HLA_alleles[,1][match(geno_exonlist[[loci[i]]][[d]]$allele_name, HLA_alleles[,2])], geno_exonlist[[loci[i]]][[d]], stringsAsFactors=FALSE)
       geno_exonlist[[loci[i]]][[d]]<-cbind.data.frame("CWD"=ifelse(geno_exonlist[[loci[i]]][[d]]$accessions %in% CWDalleles$Accession, "CWD", "NON-CWD"), geno_exonlist[[loci[i]]][[d]], stringsAsFactors=FALSE)
       
       
@@ -707,7 +719,10 @@ runCombiAnalyzer <- function(loci, variantAAtable, loop) {
     #used to inform user what iteration is currently running
     # cat("BIGCAAT:", counter,ifelse(counter==1,"iteration has","iterations have"),"been run \n", sep=" ") #### SJM cleaning up messaging
     cat("Evaluating",ifelse(counter==0,"initial comparison to null hypothesis \n",paste(counter,"-mers \n",sep=""))) ### SJM more accurate messaging
+    
     #saves each iteration to "interim"
+    cat(counter, "\n")
+    
     interim<-combiAnalyzer(loci, myData, BOLO ,KDLO, UMLO, counter, motif_list, KDLO_list, UMLO_list, variantAAtable, loop)
   
     #adds 1 to the counter with each iteration 
@@ -781,7 +796,3 @@ BIGCAAT <- function(loci, GenotypeFile) {
   
 BIGCAAT("DRB1", "../ltmasterscoding/MS_EUR.txt")
 
-fileChoose <- function(text,suspend=0.02) { ## Display a message on the Console when file.choose() is called.
-  message(text)  
-  Sys.sleep(suspend) # This is a kludgy way to get file.choose() to execute after a message is displayed.
-  file.choose()}
