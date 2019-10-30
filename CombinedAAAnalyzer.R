@@ -1,5 +1,5 @@
 ### BIGCAAT: BIGDAWG Integrated Genotype Converted Amino Acid Testing
-### Version 0.3.2
+### Version 0.3.3
 ### Authors: Liva Tran, Vinh Luu, Steven J. Mack
 
 ##Combines Datafile Procession, AA extraction, and combination analyzer into one function. Changes made for redundancy.
@@ -303,6 +303,7 @@ variantAAextractor<-function(loci,genotypefiles){
     #if alignment start is position 1, alignment start does not need to be accounted for
     #when determining length of corr_table in re-enumerating corr_table with InDels
     if(alignment_start[[loci[[i]]]]==1){
+      
       #fixes enumerations following "InDel"
       corr_table[[loci[[i]]]][2,][!grepl("InDel", corr_table[[loci[[i]]]][2,])]<-(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))))[!(alignment_start[[loci[[i]]]]:((length(corr_table[[loci[[i]]]][2,])-length(corr_table[[loci[[i]]]][2,][grepl("InDel", corr_table[[loci[[i]]]][2,])]))))==0]
     }
@@ -472,7 +473,7 @@ variantAAextractor<-function(loci,genotypefiles){
     #column in genotype data
     #columns 1 and 2 of this dataframe are adapted from genotype data columns
     #patientID and disease status 
-    mastertable[[loci[[i]]]]<- data.frame(gdata[,c(1,2)], matrix("", ncol =   length(variantAApositions[[loci[[i]]]])*2), stringsAsFactors = F)
+    mastertable[[loci[[i]]]]<- data.frame(gdata[,c(1,2)], matrix("", ncol = length(variantAApositions[[loci[[i]]]])*2), stringsAsFactors = F)
     mastertablecols[[loci[[i]]]]<-names(position_parsed[[loci[[i]]]])
     
     #repeats variant amino acid positions twice and stores them for future naming of
@@ -488,18 +489,17 @@ variantAAextractor<-function(loci,genotypefiles){
     for(u in 1:length(gdata[loci[[i]]==colnames(gdata)])){
       for(s in 1:length(variantAApositions[[loci[[i]]]])){
         mastertable[[loci[[i]]]][names(variantAApositions[[loci[[i]]]][[s]][2]) == names(mastertable[[loci[[i]]]])][[u]]<-variantAApositions[[loci[[i]]]][[s]][,2][match(gdata[loci[[i]]==colnames(gdata)][[u]], variantAApositions[[loci[[i]]]][[s]][,1])]
-      }}
-  }
+      }
+    }
     #Fixes the alignment - output will be in true alignment instead of positional order.
     for (x in 3:ncol(mastertable[[loci[[i]]]])) {
       for (y in 1:(ncol(corr_table[[loci[[i]]]]))) {
         if (corr_table[[loci[[i]]]][[1,y]] == colnames(mastertable[[loci[[i]]]][x])) {
           colnames(mastertable[[loci[[i]]]])[x] <- corr_table[[loci[[i]]]][[2,y]]
-        
       }
     }
   }
-  
+}
   mastertable #Vinh's addition
 }
 
@@ -792,7 +792,3 @@ BIGCAAT <- function(loci, GenotypeFile) {
   CombiData
 }
  
-  
-  
-BIGCAAT("DRB1", "../ltmasterscoding/MS_EUR.txt")
-
